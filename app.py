@@ -1,4 +1,3 @@
-%%writefile app.py
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -93,4 +92,5 @@ if custo_atendimento_trad > custo_atendimento_ia:
     > **Viabilidade Confirmada:** A implementação da IA reduz drasticamente o custo operacional.
     > Além disso, elimina o custo de **R$ {custo_deslocamento:.2f}** para o cidadão que reside a {distancia}km da sede,
     > democratizando o acesso à informação conforme preconiza a Constituição.
+
     """)
