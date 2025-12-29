@@ -31,6 +31,12 @@ tokens_conversa = 1500 # Uma conversa média
 st.sidebar.markdown("---")
 st.sidebar.info("Baseado na metodologia do TCC: 'Governança Digital Inclusiva em Jaguarari-BA'")
 
+# --- NOVO: LINK PARA O README ---
+# Substitua o link abaixo pelo link real do seu repositório no GitHub
+link_github = "https://github.com/reddantas/simulador-jaguarari"
+st.sidebar.markdown(f"[📘 **Ver Documentação Técnica (README)**]({link_github})")
+st.sidebar.caption("Acesse a metodologia completa e o código fonte.")
+
 # --- CÁLCULOS (O MOTOR DA SIMULAÇÃO) ---
 
 # 1. Custo Tradicional (Prefeitura)
@@ -92,5 +98,4 @@ if custo_atendimento_trad > custo_atendimento_ia:
     > **Viabilidade Confirmada:** A implementação da IA reduz drasticamente o custo operacional.
     > Além disso, elimina o custo de **R$ {custo_deslocamento:.2f}** para o cidadão que reside a {distancia}km da sede,
     > democratizando o acesso à informação conforme preconiza a Constituição.
-
     """)
