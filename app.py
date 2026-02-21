@@ -117,25 +117,37 @@ dados = pd.DataFrame({
 
 fig = px.bar(
     dados, x="Método", y="Custo Operacional (R$)", color="Método",
-    text_auto=".4s", title="Custo Unitário para os Cofres Públicos",
+    title="Custo Unitário para os Cofres Públicos",
     color_discrete_map={"Tradicional (Presencial)": "#ff4b4b", "Governança Digital (IA)": "#00CC96"}
 )
+
+# Melhorias no gráfico: barra mais fina, rótulos formatados em moeda e posicionados fora
+fig.update_traces(width=0.4, texttemplate='R$ %{y:.2f}', textposition='outside')
+fig.update_layout(showlegend=False, yaxis_title="Custo (R$)", xaxis_title="", yaxis_range=[0, max(custo_atendimento_trad, custo_atendimento_ia) * 1.2])
+
 st.plotly_chart(fig, use_container_width=True)
 
 # --- Parecer automático ---
-st.markdown("### 📝 Parecer do Simulador")
+st.markdown("### 📝 Parecer Técnico da Simulação")
 
 if custo_atendimento_trad > custo_atendimento_ia:
-    st.write(f"""
-> **Viabilidade Confirmada:** A implementação da IA reduz drasticamente o custo operacional municipal.
-> Além disso, elimina o custo de **R$ {custo_deslocamento:.2f}** para o cidadão que reside a **{distancia} km** da sede,
-> ampliando o acesso à informação e reduzindo barreiras geográficas.
-""")
+    parecer_html = f"""
+    <div style="font-size: 18px; line-height: 1.6; padding: 20px; background-color: #e6f4ea; border-left: 6px solid #34a853; border-radius: 5px; color: #1e4620; margin-bottom: 20px;">
+        <strong style="font-size: 20px;">✅ PARECER TÉCNICO FAVORÁVEL: VIABILIDADE CONFIRMADA</strong><br><br>
+        A simulação demonstra a <b>alta viabilidade econômica e operacional</b> da adoção de Agentes de Inteligência Artificial para a prestação de serviços informacionais. Observa-se uma redução substancial nas despesas de custeio da máquina pública municipal.<br><br>
+        Sob a ótica do bem-estar social e do Princípio da Eficiência, a solução tecnológica elimina um encargo financeiro de deslocamento estimado em <b>R$ {custo_deslocamento:.2f}</b> para o munícipe, mitigando o histórico gargalo geográfico de <b>{distancia} km</b>. Conclui-se que a medida promove uma <b>Governança Digital verdadeiramente inclusiva</b>, ampliando a transparência e efetivando o acesso aos serviços essenciais com zelo ao erário.
+    </div>
+    """
+    st.markdown(parecer_html, unsafe_allow_html=True)
 else:
-    st.write("""
-> **Atenção:** Com os parâmetros atuais, o custo calculado da IA não ficou menor que o presencial.
-> Revise tokenização, tempo de atendimento, salário/encargos e o preço do modelo atual.
-""")
+    parecer_html = f"""
+    <div style="font-size: 18px; line-height: 1.6; padding: 20px; background-color: #fce8e6; border-left: 6px solid #ea4335; border-radius: 5px; color: #681d15; margin-bottom: 20px;">
+        <strong style="font-size: 20px;">⚠️ ALERTA TÉCNICO: REVISÃO DE PARÂMETROS NECESSÁRIA</strong><br><br>
+        Considerando o atual arranjo de custos de processamento em nuvem (tokenização) frente aos custos operacionais presenciais, a transição digital <b>não apresenta</b>, neste cenário específico, vantagem financeira imediata para o erário.<br><br>
+        Recomenda-se à Gestão Municipal a reavaliação do desenho institucional, a negociação de contratos de infraestrutura tecnológica ou a otimização do fluxo de atendimento para garantir a eficiência econômica do projeto antes de sua plena expansão.
+    </div>
+    """
+    st.markdown(parecer_html, unsafe_allow_html=True)
 
 # --- Transparência metodológica (opcional, mas ajuda MUITO banca) ---
 with st.expander("🔍 Ver fórmulas (transparência metodológica)"):
