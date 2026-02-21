@@ -1,3 +1,4 @@
+%%writefile simulador_jaguarari.py
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -37,8 +38,8 @@ veiculo_kml = st.sidebar.number_input(
 st.sidebar.header("3. Parâmetros da Tecnologia (IA)")
 dolar = st.sidebar.number_input("Cotação Dólar (R$)", value=6.15, step=0.01)
 
-# --- NOVO: tokens separados (input/output) ---
-st.sidebar.subheader("Tokenização (gpt-4o-mini)")
+# --- ATUALIZADO PARA GPT-5 E PREÇOS DINÂMICOS ---
+st.sidebar.subheader("Tokenização (GPT-5)")
 tokens_in = st.sidebar.number_input(
     "Tokens de Entrada (prompt + contexto)", value=900, step=100,
     help="Inclui a pergunta do cidadão + contexto/instruções do sistema"
@@ -48,20 +49,17 @@ tokens_out = st.sidebar.number_input(
     help="Tamanho médio da resposta do agente"
 )
 
-st.sidebar.caption("Base de preço: gpt-4o-mini (OpenAI) – Input: US$ 0,15 / 1M; Output: US$ 0,60 / 1M.")
+st.sidebar.caption("Configuração de Preços da API (US$ por 1 Milhão de Tokens):")
+col_in, col_out = st.sidebar.columns(2)
+price_in_per_1m_usd = col_in.number_input("Input (US$)", value=2.50, step=0.10)
+price_out_per_1m_usd = col_out.number_input("Output (US$)", value=10.00, step=0.50)
 
 st.sidebar.markdown("---")
 st.sidebar.info("Baseado na metodologia do TCC: 'Governança Digital Inclusiva em Jaguarari-BA'")
 
-# Link de documentação
-link_github = "https://github.com/reddantas/simulador-jaguarari"
-st.sidebar.markdown(f"[📘 **Ver Documentação Técnica (README)**]({link_github})")
-st.sidebar.caption("Acesse a metodologia completa e o código-fonte.")
-
 # --- CÁLCULOS (MOTOR DA SIMULAÇÃO) ---
 
 # 1) Custo Tradicional (Município) — hora-homem
-# Suposição: 160 horas/mês (20 dias úteis × 8h)
 custo_minuto_humano = salario_servidor / 160 / 60
 custo_atendimento_trad = tempo_atendimento * custo_minuto_humano
 
@@ -73,11 +71,7 @@ velocidade_media_kmh = 60
 tempo_deslocamento_h = (distancia * 2) / velocidade_media_kmh
 tempo_total_trad_h = tempo_deslocamento_h + (tempo_atendimento / 60)
 
-# 3) Custo IA (Município) — tokens de entrada e saída (gpt-4o-mini)
-# Preços (US$/1M tokens): input=0.15; output=0.60
-price_in_per_1m_usd = 0.15
-price_out_per_1m_usd = 0.60
-
+# 3) Custo IA (Município) — tokens de entrada e saída (GPT-5)
 custo_ia_usd = (tokens_in / 1_000_000) * price_in_per_1m_usd + (tokens_out / 1_000_000) * price_out_per_1m_usd
 custo_atendimento_ia = custo_ia_usd * dolar  # convertendo para R$
 
@@ -92,8 +86,6 @@ with col1:
     st.success("🤖 Custo via IA (Digital)")
     st.metric(label="Custo Unitário p/ Município", value=f"R$ {custo_atendimento_ia:.4f}")
     st.caption(f"Tokens: entrada={tokens_in} | saída={tokens_out} | dólar={dolar:.2f}")
-
-    # Tempo digital (assumido como ~1 min; pode parametrizar se quiser)
     st.metric(label="Tempo Gasto pelo Cidadão", value="~1 min")
 
 with col2:
@@ -135,22 +127,5 @@ if custo_atendimento_trad > custo_atendimento_ia:
 else:
     st.write("""
 > **Atenção:** Com os parâmetros atuais, o custo calculado da IA não ficou menor que o presencial.
-> Revise tokenização, tempo de atendimento e salário/encargos.
+> Revise tokenização, tempo de atendimento, salário/encargos e o preço do modelo atual.
 """)
-
-# --- Transparência metodológica (opcional, mas ajuda MUITO banca) ---
-with st.expander("🔍 Ver fórmulas (transparência metodológica)"):
-    st.markdown("""
-**Custo humano (município):**
-- `custo_minuto_humano = salario / 160 / 60`
-- `custo_atendimento_trad = tempo_atendimento (min) × custo_minuto_humano`
-
-**Custo deslocamento (cidadão):**
-- `custo_deslocamento = (distância × 2 / km_por_litro) × preço_combustível`
-- `tempo_total = (distância × 2 / velocidade_média) + tempo_atendimento/60`
-
-**Custo IA (município) – gpt-4o-mini:**
-- `custo_ia_usd = (tokens_in/1e6)×0.15 + (tokens_out/1e6)×0.60`
-- `custo_ia_brl = custo_ia_usd × dólar`
-""")
-
