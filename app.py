@@ -1,4 +1,3 @@
-%%writefile simulador_jaguarari.py
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -57,9 +56,15 @@ price_out_per_1m_usd = col_out.number_input("Output (US$)", value=10.00, step=0.
 st.sidebar.markdown("---")
 st.sidebar.info("Baseado na metodologia do TCC: 'Governança Digital Inclusiva em Jaguarari-BA'")
 
+# Link de documentação
+link_github = "https://github.com/reddantas/simulador-jaguarari"
+st.sidebar.markdown(f"[📘 **Ver Documentação Técnica (README)**]({link_github})")
+st.sidebar.caption("Acesse a metodologia completa e o código-fonte.")
+
 # --- CÁLCULOS (MOTOR DA SIMULAÇÃO) ---
 
 # 1) Custo Tradicional (Município) — hora-homem
+# Suposição: 160 horas/mês (20 dias úteis × 8h)
 custo_minuto_humano = salario_servidor / 160 / 60
 custo_atendimento_trad = tempo_atendimento * custo_minuto_humano
 
@@ -86,6 +91,8 @@ with col1:
     st.success("🤖 Custo via IA (Digital)")
     st.metric(label="Custo Unitário p/ Município", value=f"R$ {custo_atendimento_ia:.4f}")
     st.caption(f"Tokens: entrada={tokens_in} | saída={tokens_out} | dólar={dolar:.2f}")
+
+    # Tempo digital (assumido como ~1 min; pode parametrizar se quiser)
     st.metric(label="Tempo Gasto pelo Cidadão", value="~1 min")
 
 with col2:
@@ -128,4 +135,20 @@ else:
     st.write("""
 > **Atenção:** Com os parâmetros atuais, o custo calculado da IA não ficou menor que o presencial.
 > Revise tokenização, tempo de atendimento, salário/encargos e o preço do modelo atual.
+""")
+
+# --- Transparência metodológica (opcional, mas ajuda MUITO banca) ---
+with st.expander("🔍 Ver fórmulas (transparência metodológica)"):
+    st.markdown("""
+**Custo humano (município):**
+- `custo_minuto_humano = salario / 160 / 60`
+- `custo_atendimento_trad = tempo_atendimento (min) × custo_minuto_humano`
+
+**Custo deslocamento (cidadão):**
+- `custo_deslocamento = (distância × 2 / km_por_litro) × preço_combustível`
+- `tempo_total = (distância × 2 / velocidade_média) + tempo_atendimento/60`
+
+**Custo IA (município) – GPT-5:**
+- `custo_ia_usd = (tokens_in/1e6) × preco_input + (tokens_out/1e6) × preco_output`
+- `custo_ia_brl = custo_ia_usd × dólar`
 """)
