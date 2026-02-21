@@ -37,7 +37,6 @@ veiculo_kml = st.sidebar.number_input(
 st.sidebar.header("3. Parâmetros da Tecnologia (IA)")
 dolar = st.sidebar.number_input("Cotação Dólar (R$)", value=6.15, step=0.01)
 
-# --- ATUALIZADO PARA GPT-5 MINI ---
 st.sidebar.subheader("Tokenização (GPT-5 mini)")
 tokens_in = st.sidebar.number_input(
     "Tokens de Entrada (prompt + contexto)", value=900, step=100,
@@ -50,22 +49,27 @@ tokens_out = st.sidebar.number_input(
 
 st.sidebar.caption("Configuração de Preços da API (US$ por 1 Milhão de Tokens):")
 col_in, col_out = st.sidebar.columns(2)
-# Valores atualizados com base na tabela oficial do GPT-5 mini
 price_in_per_1m_usd = col_in.number_input("Input (US$)", value=0.25, step=0.05)
 price_out_per_1m_usd = col_out.number_input("Output (US$)", value=2.00, step=0.10)
+
+# --- NOVA SEÇÃO: ACESSIBILIDADE VIA ÁUDIO ---
+st.sidebar.header("4. Acessibilidade e Inclusão (Áudio)")
+usar_audio = st.sidebar.checkbox("Habilitar Recepção por Áudio (Whisper)", value=False, help="Permite ao cidadão enviar mensagens de voz em vez de digitar, mitigando o analfabetismo funcional.")
+
+custo_audio_usd = 0.0
+tempo_audio = 0.0
+if usar_audio:
+    tempo_audio = st.sidebar.number_input("Duração Média do Áudio (minutos)", value=1.0, step=0.5)
+    preco_whisper = st.sidebar.number_input("Custo Transcrição (US$/min)", value=0.006, step=0.001, format="%.3f")
+    custo_audio_usd = tempo_audio * preco_whisper
+    st.sidebar.caption(f"Custo adicional do áudio: US$ {custo_audio_usd:.4f} por atendimento")
 
 st.sidebar.markdown("---")
 st.sidebar.info("Baseado na metodologia do TCC: 'Governança Digital Inclusiva em Jaguarari-BA'")
 
-# Link de documentação
-link_github = "https://github.com/reddantas/simulador-jaguarari"
-st.sidebar.markdown(f"[📘 **Ver Documentação Técnica (README)**]({link_github})")
-st.sidebar.caption("Acesse a metodologia completa e o código-fonte.")
-
 # --- CÁLCULOS (MOTOR DA SIMULAÇÃO) ---
 
 # 1) Custo Tradicional (Município) — hora-homem
-# Suposição: 160 horas/mês (20 dias úteis × 8h)
 custo_minuto_humano = salario_servidor / 160 / 60
 custo_atendimento_trad = tempo_atendimento * custo_minuto_humano
 
@@ -77,9 +81,10 @@ velocidade_media_kmh = 60
 tempo_deslocamento_h = (distancia * 2) / velocidade_media_kmh
 tempo_total_trad_h = tempo_deslocamento_h + (tempo_atendimento / 60)
 
-# 3) Custo IA (Município) — tokens de entrada e saída (GPT-5 mini)
-custo_ia_usd = (tokens_in / 1_000_000) * price_in_per_1m_usd + (tokens_out / 1_000_000) * price_out_per_1m_usd
-custo_atendimento_ia = custo_ia_usd * dolar  # convertendo para R$
+# 3) Custo IA (Município) — tokens de entrada, saída e áudio
+custo_ia_texto_usd = (tokens_in / 1_000_000) * price_in_per_1m_usd + (tokens_out / 1_000_000) * price_out_per_1m_usd
+custo_ia_total_usd = custo_ia_texto_usd + custo_audio_usd
+custo_atendimento_ia = custo_ia_total_usd * dolar  # convertendo para R$
 
 # 4) Economia (Município)
 economia_unitaria = custo_atendimento_trad - custo_atendimento_ia
@@ -89,12 +94,16 @@ economia_percentual = (economia_unitaria / custo_atendimento_trad) * 100 if cust
 col1, col2, col3 = st.columns(3)
 
 with col1:
-    st.success("🤖 Custo via IA (Digital)")
+    titulo_ia = "🤖 Custo via IA (Texto + Áudio)" if usar_audio else "🤖 Custo via IA (Apenas Texto)"
+    st.success(titulo_ia)
     st.metric(label="Custo Unitário p/ Município", value=f"R$ {custo_atendimento_ia:.4f}")
-    st.caption(f"Tokens: entrada={tokens_in} | saída={tokens_out} | dólar={dolar:.2f}")
-
-    # Tempo digital (assumido como ~1 min; pode parametrizar se quiser)
-    st.metric(label="Tempo Gasto pelo Cidadão", value="~1 min")
+    
+    detalhe_tokens = f"Tokens: in={tokens_in} | out={tokens_out}"
+    if usar_audio:
+        detalhe_tokens += f" | Áudio={tempo_audio}min"
+    
+    st.caption(f"{detalhe_tokens} | dólar={dolar:.2f}")
+    st.metric(label="Tempo Gasto pelo Cidadão", value="~1 a 2 min")
 
 with col2:
     st.error("🏢 Custo Tradicional (Presencial)")
@@ -122,7 +131,6 @@ fig = px.bar(
     color_discrete_map={"Tradicional (Presencial)": "#ff4b4b", "Governança Digital (IA)": "#00CC96"}
 )
 
-# Melhorias no gráfico: barra mais fina, rótulos formatados em moeda e posicionados fora
 fig.update_traces(width=0.4, texttemplate='R$ %{y:.2f}', textposition='outside')
 fig.update_layout(showlegend=False, yaxis_title="Custo (R$)", xaxis_title="", yaxis_range=[0, max(custo_atendimento_trad, custo_atendimento_ia) * 1.2])
 
@@ -131,11 +139,14 @@ st.plotly_chart(fig, use_container_width=True)
 # --- Parecer automático ---
 st.markdown("### 📝 Parecer Técnico da Simulação")
 
+texto_audio_inclusao = "A inclusão do módulo de reconhecimento de voz (Áudio) reforça a mitigação do analfabetismo funcional sem impactar negativamente a viabilidade orçamentária. " if usar_audio else ""
+
 if custo_atendimento_trad > custo_atendimento_ia:
     parecer_html = f"""
     <div style="font-size: 18px; line-height: 1.6; padding: 20px; background-color: #e6f4ea; border-left: 6px solid #34a853; border-radius: 5px; color: #1e4620; margin-bottom: 20px;">
         <strong style="font-size: 20px;">✅ PARECER TÉCNICO FAVORÁVEL: VIABILIDADE CONFIRMADA</strong><br><br>
         A simulação demonstra a <b>alta viabilidade econômica e operacional</b> da adoção de Agentes de Inteligência Artificial para a prestação de serviços informacionais. Observa-se uma redução substancial nas despesas de custeio da máquina pública municipal.<br><br>
+        {texto_audio_inclusao}
         Sob a ótica do bem-estar social e do Princípio da Eficiência, a solução tecnológica elimina um encargo financeiro de deslocamento estimado em <b>R$ {custo_deslocamento:.2f}</b> para o munícipe, mitigando o histórico gargalo geográfico de <b>{distancia} km</b>. Conclui-se que a medida promove uma <b>Governança Digital verdadeiramente inclusiva</b>, ampliando a transparência e efetivando o acesso aos serviços essenciais com zelo ao erário.
     </div>
     """
@@ -161,7 +172,8 @@ with st.expander("🔍 Ver fórmulas (transparência metodológica)"):
 - `custo_deslocamento = (distância × 2 / km_por_litro) × preço_combustível`
 - `tempo_total = (distância × 2 / velocidade_média) + tempo_atendimento/60`
 
-**Custo IA (município) – GPT-5 mini:**
-- `custo_ia_usd = (tokens_in/1e6) × preco_input + (tokens_out/1e6) × preco_output`
-- `custo_ia_brl = custo_ia_usd × dólar`
+**Custo IA (município) – GPT-5 mini + Áudio (opcional):**
+- `custo_texto_usd = (tokens_in/1e6) × preco_input + (tokens_out/1e6) × preco_output`
+- `custo_audio_usd = tempo_audio (min) × preco_whisper_minuto`
+- `custo_ia_brl = (custo_texto_usd + custo_audio_usd) × dólar`
 """)
