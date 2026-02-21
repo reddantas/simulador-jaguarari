@@ -153,3 +153,4 @@ with st.expander("🔍 Ver fórmulas (transparência metodológica)"):
 - `custo_ia_usd = (tokens_in/1e6)×0.15 + (tokens_out/1e6)×0.60`
 - `custo_ia_brl = custo_ia_usd × dólar`
 """)
+
