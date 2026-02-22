@@ -14,6 +14,8 @@ no atendimento ao cidadão em **Jaguarari-BA**, comparado ao modelo presencial t
 st.markdown("---")
 
 # --- BARRA LATERAL (INPUTS DOS VALORES REAIS) ---
+st.sidebar.title("⚙️ Variáveis de Entrada")
+
 st.sidebar.header("1. Parâmetros do Município")
 salario_servidor = st.sidebar.number_input(
     "Salário Médio Servidor + Encargos (R$)", value=3000.00, step=100.00
