@@ -1,6 +1,6 @@
 # 🏛️ Simulador de Governança Digital Inclusiva: Jaguarari-BA
 
-> Ferramenta complementar ao Artigo Científico: **"GOVERNANÇA DIGITAL INCLUSIVA: Custos, Vantagens e Desvantagens do uso da IA para desatar gargalos e efetivar o Acesso à Informação Pública no Município de Jaguarari – BA"**.
+> Ferramenta complementar ao Artigo Científico: **"GOVERNANÇA DIGITAL EM TERRITÓRIOS DISPERSOS: O Uso da IA para a Superação de Barreiras Físicas na Gestão de Jaguarari-BA"**.
 
 ## 🎯 Objetivo
 Este software foi desenvolvido para simular cenários reais de atendimento ao cidadão no município de Jaguarari-BA, caracterizado por sua vasta extensão territorial e dispersão demográfica.
@@ -32,7 +32,7 @@ Desenvolvido como parte dos requisitos para obtenção do título de Especialist
 
 * **Autor:** Renato de Magalhães Dantas Neto
 * **Orientadora:** Prof. Dr. Simone Piletti Viscarra
-* **Ano:** 2025
+* **Ano:** 2026
 
 ---
 *Dados baseados em fontes oficiais (IBGE, Portal da Transparência de Jaguarari e AGERBA).*
