@@ -65,7 +65,11 @@ if usar_audio:
     st.sidebar.caption(f"Custo adicional do áudio: US$ {custo_audio_usd:.4f} por atendimento")
 
 st.sidebar.markdown("---")
-st.sidebar.info("Baseado na metodologia do TCC: 'Governança Digital Inclusiva em Jaguarari-BA'")
+
+# Link de documentação direto no texto informativo com o título correto do artigo
+link_github = "https://github.com/reddantas/simulador-jaguarari#readme"
+st.sidebar.info(f"Baseado na pesquisa: [**'GOVERNANÇA DIGITAL EM TERRITÓRIOS DISPERSOS: O Uso da IA para a Superação de Barreiras Físicas na Gestão de Jaguarari-BA'**]({link_github})")
+st.sidebar.caption("Acesse a documentação técnica, metodologia completa e o código-fonte no GitHub.")
 
 # --- CÁLCULOS (MOTOR DA SIMULAÇÃO) ---
 
